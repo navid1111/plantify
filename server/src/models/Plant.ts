@@ -1,5 +1,6 @@
 // src/models/Plant.ts
 import mongoose, { Document, Schema, model } from 'mongoose';
+import { ITask } from './Task';
 import { IUser } from './Users';
 
 export interface IGrowthRecord {
@@ -12,7 +13,7 @@ export interface IPlant extends Document {
   user: mongoose.Types.ObjectId | IUser; // Or mongoose.Types.ObjectId if you have the User model defined
   name: string;
   species?: string;
-  tasks: string[]; // Array of Task IDs
+  tasks: mongoose.Types.ObjectId[] | ITask[]; // Array of Task IDs
   images: string[];
   growthRecords: IGrowthRecord[];
   seedingMonths?: number[];
@@ -29,7 +30,7 @@ const PlantSchema = new Schema<IPlant>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   name: { type: String, required: true },
   species: { type: String },
-  tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+  tasks: [{ type: mongoose.Types.ObjectId, ref: 'Task' }],
   images: [{ type: String }],
   growthRecords: [GrowthRecordSchema],
   seedingMonths: [{ type: Number }],
