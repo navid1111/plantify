@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Plant from '../models/Plant';
 import Task from '../models/Task';
+import { getCurrentWeekNumber } from '../utils/dateHelper';
 
 export const createTask = async (
   req: Request,
@@ -43,5 +44,27 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
     res
       .status(500)
       .json({ message: 'An error occurred while fetching tasks.' });
+  }
+};
+export const getAdminTasksForCurrentWeek = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { plantId } = req.params;
+    const currentWeekNumber = getCurrentWeekNumber();
+
+    const tasks = await Task.find({
+      plant: plantId,
+      assignedByAdmin: true,
+      weekNumber: currentWeekNumber,
+    });
+
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error('Error fetching admin tasks:', error);
+    res
+      .status(500)
+      .json({ message: 'An error occurred while fetching admin tasks.' });
   }
 };

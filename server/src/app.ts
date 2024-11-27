@@ -4,6 +4,7 @@ import connectDB from './connectMongoDB';
 import adminRouter from './routes/adminRoutes';
 import plantRouter from './routes/plantRoutes';
 import taskRouter from './routes/taskRoutes';
+import './utils/cronJobs';
 
 // Load environment variables
 dotenv.config();
