@@ -17,7 +17,11 @@ const UserSchema = new Schema<IUser>({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  streak: { type: Number, default: 0 },
+  streak: {
+    current: { type: Number, default: 0 }, // Current streak count
+    longest: { type: Number, default: 0 }, // Longest streak achieved
+    lastCompletedDate: { type: Date }, // Last date the user completed a task
+  },
   ranking: { type: Number, default: 0 },
   carbonFootprint: { type: Number, default: 0 },
   plants: [{ type: Schema.Types.ObjectId, ref: 'Plant' }],
