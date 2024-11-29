@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import express, { Application } from 'express';
 import connectDB from './connectMongoDB';
 import adminRouter from './routes/adminRoutes';
+import authRouter from './routes/authRoutes';
 import plantRouter from './routes/plantRoutes';
 import taskRouter from './routes/taskRoutes';
 import './utils/cronJobs';
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 app.use('/api/plants', plantRouter);
 app.use('/api/tasks', taskRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/auth', authRouter);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

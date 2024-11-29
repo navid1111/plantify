@@ -52,7 +52,12 @@ export const getAdminTasksForCurrentWeek = async (
 ): Promise<void> => {
   try {
     const { plantId } = req.params;
-    const currentWeekNumber = getCurrentWeekNumber();
+    const plant = await Plant.findById(plantId);
+    if (!plant) {
+      res.status(404).json({ message: 'Plant not found' });
+      return;
+    }
+    const currentWeekNumber = getCurrentWeekNumber(plant.createdAt);
 
     const tasks = await Task.find({
       plant: plantId,

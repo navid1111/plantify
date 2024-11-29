@@ -5,6 +5,7 @@ import { assignWeeklyTasks } from '../services/taskService';
 // Schedule task assignment at the start of each week (e.g., every Monday at 00:00)
 cron.schedule('0 0 * * 1', async () => {
   console.log('Assigning weekly tasks...');
+
   await assignWeeklyTasks();
 });
 

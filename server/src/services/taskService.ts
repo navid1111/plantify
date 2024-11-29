@@ -5,23 +5,27 @@ import WeeklyRoutine from '../models/WeeklyRoutine';
 import { getCurrentWeekNumber, getEndofWeekDate } from '../utils/dateHelper';
 
 export const assignWeeklyTasks = async () => {
-  const currentWeek = getCurrentWeekNumber();
-  const routines = await WeeklyRoutine.find({ weekNumber: currentWeek });
-  console.log(currentWeek);
+  const plants = await Plant.find({});
 
-  for (const routine of routines) {
-    const plants = await Plant.find({ name: routine.plantType });
-    for (const plant of plants) {
+  for (const plant of plants) {
+    const currentWeek = getCurrentWeekNumber(plant.createdAt);
+    console.log(currentWeek); // Use planting date
+
+    const routines = await WeeklyRoutine.find({
+      weekNumber: currentWeek,
+      plantType: plant.name,
+    });
+    for (const routine of routines) {
       for (const description of routine.tasks) {
         const task = new Task({
           description,
           plant: plant._id,
           dueDate: getEndofWeekDate(),
           weekNumber: currentWeek,
-          asignedByAdmin: true,
+          assignedByAdmin: true,
         });
-        const savedTask = await task.save();
 
+        const savedTask = await task.save();
         (plant.tasks as mongoose.Types.ObjectId[]).push(
           savedTask._id as mongoose.Types.ObjectId,
         );
