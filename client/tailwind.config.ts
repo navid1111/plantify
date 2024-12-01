@@ -11,8 +11,8 @@ const config: Config = {
     extend: {
       colors: {
         olive: '#959B81',
-        clay: '#D6A27A', // Clay color
-        'spring-soge': '#A4D7B2', // Spring Soge color
+        clay: '#C79675', // Clay color
+        'spring-soge': '#D8E1CC', // Spring Soge color
         cream: '#F9F5F2', // Cream color
         'olive-russet': '#6B4F3B', // Olive Russet color
         'soft-peach': '#F5D0A9', // Soft Peach color

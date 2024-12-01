@@ -1,19 +1,31 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+// Extend the Request interface to include userId
+declare module 'express-serve-static-core' {
+  interface Request {
+    userId?: string;
+  }
+}
+
+const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   const token = req.header('x-auth-token');
 
   if (!token) {
-    return res.status(401).json({ msg: 'No token, authorization denied' });
+    res.status(401).json({ msg: 'No token, authorization denied' });
+    return;
   }
 
   try {
-    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
     };
-    req.user = decoded.userId;
+
+    req.userId = decoded.userId; // This will now be type-safe
     next();
   } catch (err) {
     console.error(err);

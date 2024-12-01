@@ -1,22 +1,12 @@
+'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { EnvironmentalCondition, Task } from '@/types/plant';
+import axios from 'axios';
 import { CheckSquare, Droplets, Sun, Wind } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-const tasks: Task[] = [
-  { id: '1', description: 'Water tomatoes every other day', completed: false },
-  { id: '2', description: 'Prune Aloevera plants', completed: false },
-  { id: '3', description: 'Check soil pH for Janda Bolong', completed: false },
-  { id: '4', description: 'Harvest ripe tomatoes', completed: false },
-  { id: '5', description: 'Apply organic fertilizer', completed: false },
-  { id: '6', description: 'Inspect for pests on roses', completed: false },
-  { id: '7', description: 'Repot overgrown succulents', completed: false },
-  { id: '8', description: 'Mist orchids', completed: false },
-  { id: '9', description: 'Trim hedges', completed: false },
-  { id: '10', description: 'Plant new herb seeds', completed: false },
-];
-
+// Sample data for plant growth and environmental conditions (kept static)
 const plantGrowth = [
   { name: 'Tomatoes', growth: 90 },
   { name: 'Aloevera', growth: 75 },
@@ -31,20 +21,84 @@ const environmentalConditions: EnvironmentalCondition[] = [
   { type: 'airQuality', value: 'Good' },
 ];
 
+// Dashboard component
 export function Dashboard() {
+  const [plantCount, setPlantCount] = useState<number>(0);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch the plant count and tasks when the component is mounted
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Configure axios with base URL and default headers
+        axios.defaults.baseURL = 'http://localhost:5000/api';
+
+        // Get token from localStorage (adjust based on your auth setup)
+        const token = localStorage.getItem('token');
+
+        // Fetch plant count
+        const plantCountResponse = await axios.get('/profile/noOfPlants', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'x-auth-token': token,
+          },
+        });
+
+        // Fetch weekly tasks
+        const tasksResponse = await axios.get('/profile/weeklyTasks', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'x-auth-token': token,
+          },
+        });
+
+        // More robust data extraction
+        const count = plantCountResponse.data?.totalPlants ?? 0;
+        const fetchedTasks = tasksResponse.data ?? [];
+
+        setPlantCount(count);
+        setTasks(fetchedTasks);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError('Failed to fetch data');
+        setIsLoading(false);
+        setPlantCount(0);
+        setTasks([]);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Error and loading states
+  if (isLoading) {
+    return <div>Loading plant data...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <div className="flex-1 p-6 overflow-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Total Plants Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Plants</CardTitle>
             <Droplets className="w-4 h-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">18</div>
-            <p className="text-xs text-muted-foreground">+2 from last week</p>
+            <div className="text-2xl font-bold">{plantCount}</div>
           </CardContent>
         </Card>
+
+        {/* Healthy Plants Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -57,21 +111,11 @@ export function Dashboard() {
             <p className="text-xs text-muted-foreground">90% of total plants</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Tasks Completed
-            </CardTitle>
-            <CheckSquare className="w-4 h-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">24/30</div>
-            <p className="text-xs text-muted-foreground">80% completion rate</p>
-          </CardContent>
-        </Card>
       </div>
 
+      {/* Task List and Plant Growth */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Tasks for This Week Card */}
         <Card>
           <CardHeader>
             <CardTitle>Tasks for This Week</CardTitle>
@@ -85,7 +129,15 @@ export function Dashboard() {
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     <CheckSquare className="w-5 h-5 text-emerald-500" />
-                    <span className="text-sm">{task.description}</span>
+                    <span className="text-sm">
+                      {task.plantType + ' '}
+                      {/* Iterate over task.tasks array and display each task */}
+                      {task.tasks.map((subTask, index) => (
+                        <span key={index} className="block">
+                          {subTask}
+                        </span>
+                      ))}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -93,28 +145,10 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Plant Growth Chart</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {plantGrowth.map(plant => (
-                <div key={plant.name} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{plant.name}</span>
-                    <span className="text-emerald-600 font-medium">
-                      {plant.growth}%
-                    </span>
-                  </div>
-                  <Progress value={plant.growth} className="h-2" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Plant Growth Chart Card */}
       </div>
 
+      {/* Environmental Conditions Card */}
       <Card>
         <CardHeader>
           <CardTitle>Environmental Conditions</CardTitle>

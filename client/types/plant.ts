@@ -6,7 +6,8 @@ export interface Plant {
 
 export interface Task {
   id: string;
-  description: string;
+  plantType: string;
+  tasks: string[];
   completed: boolean;
 }
 
@@ -15,4 +16,3 @@ export interface EnvironmentalCondition {
   value: string;
   unit?: string;
 }
-

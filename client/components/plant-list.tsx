@@ -1,21 +1,64 @@
+'use client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plant } from '@/types/plant';
-import { MessageSquare, Plus } from 'lucide-react';
+import axios from 'axios'; // If using axios
+import { useEffect, useState } from 'react';
 
-const plants: Plant[] = [
-  { name: 'Aloevera', species: 'Aloe perfoliata vera', progress: 80 },
-  { name: 'Tomatoes', species: 'Solanum lycopersicum', progress: 60 },
-  { name: 'Janda Bolong', species: "Adanson's monstera", progress: 40 },
-  { name: 'Snake Plant', species: 'Sansevieria trifasciata', progress: 90 },
-  { name: 'Peace Lily', species: 'Spathiphyllum', progress: 75 },
-  { name: 'Spider Plant', species: 'Chlorophytum comosum', progress: 85 },
-];
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { MessageSquare, Plus } from 'lucide-react';
+interface Plant {
+  _id: string;
+  name: string;
+  species: string;
+}
 
 export function PlantList() {
+  // State for holding plant data
+  const [plants, setPlants] = useState<Plant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch plant data from the backend API
+  useEffect(() => {
+    const fetchPlants = async () => {
+      try {
+        axios.defaults.baseURL = 'http://localhost:5000/api';
+
+        // Get token from localStorage (adjust based on your auth setup)
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('Authentication token is missing');
+          return;
+        }
+
+        const response = await axios.get('/plants', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'x-auth-token': token,
+          },
+        });
+
+        setPlants(response.data); // Assuming the response data is an array of plants
+      } catch (error) {
+        setError('Failed to fetch plants');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlants();
+  }, []);
+
+  if (loading) {
+    return <div>Loading plants...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <div className="w-80 p-6 bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
       <Button className="w-full bg-olive hover:bg-olive-russet text-white mb-6">
@@ -33,7 +76,9 @@ export function PlantList() {
       <ScrollArea className="h-[calc(100vh-250px)]">
         <div className="space-y-4 pr-4">
           {plants.map(plant => (
-            <Card key={plant.name} className="p-4">
+            <Card key={plant._id} className="p-4">
+              {' '}
+              {/* Assuming plants have an _id */}
               <div className="flex items-center gap-3 mb-2">
                 <Avatar className="w-10 h-10">
                   <AvatarImage
@@ -54,11 +99,8 @@ export function PlantList() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Health</span>
-                  <span className="font-medium text-spring-soge">
-                    {plant.progress}%
-                  </span>
+                  <span className="font-medium text-spring-soge"></span>
                 </div>
-                <Progress value={plant.progress} className="h-1" />
               </div>
             </Card>
           ))}

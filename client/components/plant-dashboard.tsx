@@ -22,7 +22,7 @@ import {
 
 export default function PlantDashboard() {
   return (
-    <div className="flex h-screen bg-[#F0F4F8] dark:bg-gray-900">
+    <div className="flex h-screen bg-cream dark:bg-gray-900">
       {/* Sidebar */}
       <div className="w-64 p-6 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2 mb-8">
@@ -126,9 +126,9 @@ export default function PlantDashboard() {
               <Sun className="w-4 h-4 text-yellow-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">15</div>
+              <div className="text-2xl font-bold">4</div>
               <p className="text-xs text-muted-foreground">
-                90% of total plants
+                Tasks completed this week
               </p>
             </CardContent>
           </Card>

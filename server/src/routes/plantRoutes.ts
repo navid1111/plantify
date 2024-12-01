@@ -5,11 +5,12 @@ import {
   getGrowthRecord,
   getPlants,
 } from '../controllers/plantController';
+import authMiddleware from '../middleware/authMiddleware';
 import upload from '../middleware/uploadMiddleware';
 
 const router = Router();
-router.post('/', createPlant);
-router.get('/user/:userId', getPlants);
+router.post('/', authMiddleware, createPlant);
+router.get('/', authMiddleware, getPlants);
 router.post('/:plantId/growth', upload.single('image'), addGrowthRecord);
 router.get('/:plantId/growth', getGrowthRecord);
 

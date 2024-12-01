@@ -13,6 +13,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { username, email, password, role = 'user' } = req.body; // Default role is 'user'
+  console.log(req.body);
 
   try {
     // Check if the user already exists
@@ -40,7 +41,7 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
     // Generate a JWT token
     const payload = { userId: user._id, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-      expiresIn: '1h',
+      expiresIn: '20h',
     });
 
     // Send the token in the response
